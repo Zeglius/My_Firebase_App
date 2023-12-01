@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name" translatable="false">My_Firebase_App</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="title_activity_sign_up" translatable="false">SignUpActivity</string>
+    <string name="invalid_email">Invalid email address</string>
+    <string name="invalid_password">Invalid password. Must be >6 characters long</string>
+    <string name="sign_up">Sign up</string>
+    <string name="start_point">start point: %1$s</string>
+    <string name="destination">destination: %1$s</string>
+    <string name="travel_id">TravelID: %1$s</string>
+    <string name="password">Password</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="login">Login</string>
+    <string name="title_activity_travel_list" translatable="false">TravelList</string>
+    <string name="my_travel_list">My travel list</string>
+    <string name="title_activity_login" translatable="false">LoginActivity</string>
+    <string name="create_travel">Create travel</string>
+    <string name="log_out">Log out</string>
+</resources>

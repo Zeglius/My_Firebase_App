@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1038072836347",
+    "project_id": "my-firebase-project-bb184",
+    "storage_bucket": "my-firebase-project-bb184.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038072836347:android:1ed636ebd5bd85bc09005e",
+        "android_client_info": {
+          "package_name": "com.zeglius.my_firebase_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXGwqoReSddUPNeHz65hyG7e1p_7sUUAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

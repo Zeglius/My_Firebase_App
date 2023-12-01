@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="invalid_email">Dirección de email invalida</string>
+    <string name="invalid_password">Contraseña invalida. Debe contener más de 6 caracteres</string>
+    <string name="sign_up">Registrarse</string>
+    <string name="start_point">origen: %1$s</string>
+    <string name="destination">destino: %1$s</string>
+    <string name="travel_id">ViajeID: %1$s</string>
+    <string name="password">Contraseña</string>
+    <string name="login">Iniciar sesion</string>
+    <string name="my_travel_list">Mi lista de viajes</string>
+    <string name="create_travel">Crear viaje</string>
+    <string name="log_out">Cerrar session</string>
+</resources>
