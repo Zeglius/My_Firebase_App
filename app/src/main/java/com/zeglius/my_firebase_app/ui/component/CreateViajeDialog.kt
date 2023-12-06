@@ -21,6 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,15 +38,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.zeglius.my_firebase_app.controller.DAO
+import com.zeglius.my_firebase_app.ui.model.Viaje
 import com.zeglius.my_firebase_app.ui.theme.My_Firebase_AppTheme
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateViajeDialog(
     isVisible: Boolean,
+    fieldsContents: Viaje? = null,
     onDismissRequest: () -> Unit,
 ) {
+    val isUpdateTransaction = run { fieldsContents != null }
+
     val context = LocalContext.current
     var origen by remember { mutableStateOf("") }
     var destino by remember { mutableStateOf("") }
@@ -56,6 +62,11 @@ fun CreateViajeDialog(
             onResult = { uri -> imageUri = uri })
     val coroutineScope = rememberCoroutineScope()
 
+
+    if (fieldsContents != null) {
+        origen = fieldsContents.origen!!
+        destino = fieldsContents.destino!!
+    }
 
 
     if (isVisible) {
@@ -73,7 +84,7 @@ fun CreateViajeDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Create travel",
+                    text = if(!isUpdateTransaction)"Create travel" else "Update travel",
                     modifier = Modifier.align(Alignment.Start),
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -125,14 +136,23 @@ fun CreateViajeDialog(
                 Row(Modifier.align(Alignment.End)) {
                     TextButton(
                         onClick = {
-                            if (bitMap.value != null)
+                            if (bitMap.value != null) {
                                 coroutineScope.launch {
-                                    DAO.handleTravelCreation(
-                                        origen,
-                                        destino,
-                                        bitMap.value!!
-                                    )
+                                    if (isUpdateTransaction && fieldsContents != null) {
+                                        var auxViaje = fieldsContents.copy()
+                                        origen?.let { auxViaje = auxViaje.copy(origen = it) }
+                                        destino?.let { auxViaje = auxViaje.copy(destino = destino) }
+                                        DAO.updateTravel(auxViaje, bitMap.value!!)
+                                    } else {
+                                        DAO.createTravel(
+                                            origen,
+                                            destino,
+                                            bitMap.value!!
+                                        )
+                                    }
+
                                 }
+                            }
                             onDismissRequest()
                         },
                         enabled = origen.isNotBlank() && destino.isNotBlank() && bitMap.value != null

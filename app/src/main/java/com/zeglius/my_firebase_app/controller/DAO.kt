@@ -1,37 +1,38 @@
 package com.zeglius.my_firebase_app.controller
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
-import com.google.android.gms.tasks.SuccessContinuation
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.storageMetadata
 import com.zeglius.my_firebase_app.ui.model.Viaje
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
 const val TAG: String = "DAO"
 
 object DAO {
-    suspend fun handleTravelCreation(
+    private val email: String by lazy { Firebase.auth.currentUser!!.email!! }
+
+    suspend fun createTravel(
         origen: String,
         destino: String,
         bitmap: Bitmap,
     ) {
         val storageRef = Firebase.storage.reference
         if (Firebase.auth.currentUser == null) return
-        val email = Firebase.auth.currentUser!!.email!!
         val userViajesCollection =
             Firebase.firestore.collection("viajes").document(email).collection("userViajes")
 
         // Get image bytes
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        val imageBytes = stream.toByteArray()
+        val imageBytes = bitmap.toByteArray()
 
 
         // Create viaje
@@ -45,9 +46,25 @@ object DAO {
         viajeRef.set(myViaje)
 
 
-        // Upload image and obtain id
+        uploadImageToViaje(viajeRef, imageBytes)
+
+    }
+
+    private fun Bitmap.toByteArray(): ByteArray {
+        val stream = ByteArrayOutputStream()
+        this.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    // Upload image
+    private fun uploadImageToViaje(
+        viajeRef: DocumentReference,
+        imageBytes: ByteArray,
+    ): Uri? {
+        val storageRef = Firebase.storage.reference
         lateinit var imageRef: StorageReference
-        myViaje.idViaje.let { id ->
+        var bitmapUrl: Uri? = null
+        viajeRef.id.let { id ->
             imageRef = storageRef.child("images/${id}")
             imageRef.putBytes(imageBytes, storageMetadata {
                 contentType = "image/jpg"
@@ -58,10 +75,34 @@ object DAO {
                 .addOnSuccessListener {
                     Log.d(TAG, "handleTravelCreation: Uploaded file ${it.uploadSessionUri}")
                 }
-        }.await()
+        }.onSuccessTask {
+            // Update imageRef in the viaje entry
+            val downloadUrl: Uri?
+            runBlocking {
+                downloadUrl = imageRef.downloadUrl.await()
+                bitmapUrl = downloadUrl
+            }
 
-        // Update imageRef in the viaje entry
-        viajeRef.update("imageBitmapStoragePath", imageRef.downloadUrl.await())
+            viajeRef.update("imageBitmapStoragePath", downloadUrl)
+        }
+        return bitmapUrl
     }
+
+    suspend fun updateTravel(viaje: Viaje, bitMap: Bitmap) = runBlocking {
+        val viajeRef = Firebase.firestore.collection("viajes")
+            .document(email)
+            .collection("userViajes")
+            .document(viaje.idViaje!!)
+
+        viajeRef
+            .set(
+                viaje,
+                SetOptions.mergeFields(listOf("origen", "destino"))
+            ).await()
+
+
+        uploadImageToViaje(viajeRef, bitMap.toByteArray())
+    }
+
 }
 

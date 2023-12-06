@@ -88,6 +88,8 @@ private fun TravelListContent(onSignOut: () -> Unit) {
     val collectionReference = db.collection("viajes")
         .document(Firebase.auth.currentUser!!.email!!)
         .collection("userViajes")
+    var selectedViaje: Viaje? by remember { mutableStateOf(null) }
+
     @Suppress("UNUSED_VARIABLE")
     val valueEventListener by rememberUpdatedState {
         collectionReference.addSnapshotListener { snapshot, _ ->
@@ -150,14 +152,15 @@ private fun TravelListContent(onSignOut: () -> Unit) {
 
             CreateViajeDialog(
                 isVisible = isCreateViajeVisible,
-                onDismissRequest = { isCreateViajeVisible = false })
+                fieldsContents = selectedViaje,
+                onDismissRequest = { isCreateViajeVisible = false; selectedViaje = null })
 
             Column(Modifier.padding(10.dp)) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(viajesList) { viaje ->
-                        ViajeItem(viaje)
+                        ViajeItem(viaje) { viaje -> selectedViaje = viaje; isCreateViajeVisible = true }
                     }
                 }
                 Button(

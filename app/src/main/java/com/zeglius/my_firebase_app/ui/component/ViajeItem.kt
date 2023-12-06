@@ -22,10 +22,10 @@ import coil.compose.SubcomposeAsyncImageContent
 import com.zeglius.my_firebase_app.ui.model.Viaje
 
 @Composable
-fun ViajeItem(viaje: Viaje, onClick: () -> Unit = {}) {
+fun ViajeItem(viaje: Viaje, onClick: (Viaje) -> Unit = {}) {
     Card(modifier = Modifier
         .fillMaxWidth()
-        .clickable { onClick() })
+        .clickable { onClick(viaje) })
     {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
 
