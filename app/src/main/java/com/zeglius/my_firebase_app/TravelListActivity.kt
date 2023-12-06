@@ -141,7 +141,7 @@ private fun TravelListContent(onSignOut: () -> Unit) {
         }
     ) { paddingValues ->
         Column(
-            Modifier.padding(paddingValues),
+            modifier = Modifier.padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -155,19 +155,24 @@ private fun TravelListContent(onSignOut: () -> Unit) {
                 fieldsContents = selectedViaje,
                 onDismissRequest = { isCreateViajeVisible = false; selectedViaje = null })
 
-            Column(Modifier.padding(10.dp)) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(viajesList) { viaje ->
-                        ViajeItem(viaje) { viaje -> selectedViaje = viaje; isCreateViajeVisible = true }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(10.dp),
+            ) {
+                items(viajesList) { viaje ->
+                    ViajeItem(viaje) { viaje ->
+                        selectedViaje = viaje; isCreateViajeVisible = true
                     }
                 }
-                Button(
-                    onClick = { isCreateViajeVisible = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = stringResource(R.string.create_travel))
+
+                item {
+                    Button(
+                        onClick = { isCreateViajeVisible = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = stringResource(R.string.create_travel))
+                    }
+
                 }
             }
         }
