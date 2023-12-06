@@ -89,8 +89,7 @@ class MainActivity : ComponentActivity() {
         }
 
         fun goLogin(context: Context) {
-            /*TODO Go to login*/
-            Toast.makeText(context, "Navigating to login screen...", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(context, LoginActivity::class.java))
         }
 
 

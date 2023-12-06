@@ -57,7 +57,7 @@ private fun LoginContent(onSucessListener: (Any) -> Unit, onFailureListener: (Ex
         onLoginOrSignUp = { email, password ->
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(onSucessListener)
-                .addOnFailureListener(onSucessListener)
+                .addOnFailureListener(onFailureListener)
         }
     )
 }

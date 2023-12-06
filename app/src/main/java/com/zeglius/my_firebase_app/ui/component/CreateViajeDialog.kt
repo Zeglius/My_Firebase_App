@@ -3,7 +3,6 @@ package com.zeglius.my_firebase_app.ui.component
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -37,18 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
-import com.google.firebase.storage.storageMetadata
-import com.zeglius.my_firebase_app.ui.model.Viaje
+import com.zeglius.my_firebase_app.controller.DAO
 import com.zeglius.my_firebase_app.ui.theme.My_Firebase_AppTheme
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +127,7 @@ fun CreateViajeDialog(
                         onClick = {
                             if (bitMap.value != null)
                                 coroutineScope.launch {
-                                    handleTravelCreation(
+                                    DAO.handleTravelCreation(
                                         origen,
                                         destino,
                                         bitMap.value!!
@@ -158,54 +148,6 @@ fun CreateViajeDialog(
 }
 
 private const val TAG = "CreateViajeDialog"
-
-private suspend fun handleTravelCreation(
-    origen: String,
-    destino: String,
-    bitmap: Bitmap,
-) {
-    val storageRef = Firebase.storage.reference
-    val email = Firebase.auth.currentUser!!.email
-    val userViajesRef =
-        Firebase.firestore.collection("viajes").document(email!!).collection("userViajes")
-
-    // Get image bytes
-    var stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-    val imageBytes = stream.toByteArray()
-
-
-    // Create viaje
-    var myViaje = Viaje(origen = origen, destino = destino)
-
-
-    // Upload viaje
-    var viajeId: String? = null
-    var viajeRef: DocumentReference? = null
-    userViajesRef.add(myViaje).addOnSuccessListener {
-        viajeId = it.id
-        viajeRef = it
-        it.update("idViaje", it.id)
-    }.await()
-
-    // Upload image and obtain id
-    var imageRef: StorageReference? = null
-    viajeId?.let { id ->
-        imageRef = storageRef.child("images/${id}")
-        imageRef!!.putBytes(imageBytes, storageMetadata {
-            contentType = "image/jpg"
-        })
-            .addOnFailureListener { e ->
-                Log.e(TAG, "handleTravelCreation: Couldnt upload image", e)
-            }
-            .addOnSuccessListener {
-                Log.d(TAG, "handleTravelCreation: Uploaded file ${it.uploadSessionUri}")
-            }
-    }
-
-    // Update imageRef in the viaje entry
-    viajeRef?.update("imageBitmapStoragePath", imageRef!!.path)
-}
 
 
 @Preview(showSystemUi = true)

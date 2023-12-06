@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.ktx.*
 import com.google.firebase.ktx.Firebase
 import com.zeglius.my_firebase_app.ui.component.FirebaseLoginFields
 import com.zeglius.my_firebase_app.ui.theme.My_Firebase_AppTheme
@@ -34,13 +34,11 @@ class SignUpActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SignUpContent(auth,
-                        onSuccessListener = {
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                            handleSuccess()
-                        },
-                        onFailureListener = { e -> handleFailure(e) }
-                    )
+                    SignUpContent(onSuccessListener = {
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                        handleSuccess()
+                    }
+                    ) { e -> handleFailure(e) }
                 }
             }
         }
@@ -62,14 +60,13 @@ class SignUpActivity : ComponentActivity() {
 
 @Composable
 private fun SignUpContent(
-    auth: FirebaseAuth? = null,
     onSuccessListener: (Any) -> Unit,
     onFailureListener: (Exception) -> Unit,
 ) {
     FirebaseLoginFields(
         buttonText = { Text(text = stringResource(R.string.sign_up)) },
         onLoginOrSignUp = { email, password ->
-            (auth ?: Firebase.auth).createUserWithEmailAndPassword(email, password)
+            Firebase.auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(onSuccessListener)
                 .addOnFailureListener(onFailureListener)
         }
